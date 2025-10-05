@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Event Customization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .event-selection {
+            margin-bottom: 30px;
+        }
+        .event-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .event-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .event-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        .event-btn.active {
+            background: #764ba2;
+        }
+        .stages-section {
+            display: none;
+            margin-bottom: 30px;
+        }
+        .stages-section.active {
+            display: block;
+        }
+        .stages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .stage-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        .stage-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .image-option {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .image-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        .image-option.selected {
+            border-color: #764ba2;
+            background: #f0f0ff;
+        }
+        .image-option img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+        .image-option p {
+            margin: 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .pdf-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0ff;
+            border-radius: 10px;
+        }
+        .generate-pdf-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .generate-pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .generate-pdf-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .selected-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .selected-summary h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .loading {
+            display: none;
+            color: #667eea;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Wedding Event Customization</h1>
+            <p>Select your event and customize your perfect wedding!</p>
+        </div>
+
+        <!-- Event Selection -->
+        <div class="event-selection">
+            <h2>Choose Your Event</h2>
+            <div class="event-buttons">
+                <button class="event-btn" onclick="selectEvent('Wedding')">Wedding</button>
+                <button class="event-btn" onclick="selectEvent('Haldi')">Haldi</button>
+                <button class="event-btn" onclick="selectEvent('Mehandi')">Mehandi</button>
+                <button class="event-btn" onclick="selectEvent('Sangeet')">Sangeet</button>
+                <button class="event-btn" onclick="selectEvent('Cocktail Party')">Cocktail Party</button>
+            </div>
+        </div>
+
+        <!-- Stages Section -->
+        <div id="stages-section" class="stages-section">
+            <h2>Customize Your Event</h2>
+            <div id="stages-grid" class="stages-grid">
+                <!-- Stages will be loaded here -->
+            </div>
+        </div>
+
+        <!-- PDF Generation Section -->
+        <div class="pdf-section">
+            <h3>📄 Generate Your Customization PDF</h3>
+            <p>Create a beautiful PDF with all your selected decorations</p>
+            <button id="generate-pdf-btn" class="generate-pdf-btn" onclick="generatePDF()" disabled>
+                Generate PDF
+            </button>
+            <div id="loading" class="loading">Generating PDF...</div>
+            <div id="selected-summary" class="selected-summary" style="display: none;">
+                <h4>Selected Items:</h4>
+                <div id="selected-items"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api/v1';
+        let selectedEvent = null;
+        let selectedImages = {};
+
+        // Sample data (in real app, this would come from API)
+        const eventData = {
+            'Wedding': {
+                id: 1,
+                stages: [
+                    {
+                        id: 1,
+                        name: 'Entrance Gate',
+                        images: [
+                            {
+                                id: 1,
+                                name: 'Entrance Gate 1',
+                                url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop&crop=center',
+                                description: 'Classic floral design'
+                            },
+                            {
+                                id: 2,
+                                name: 'Entrance Gate 2',
+                                url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop&crop=center',
+                                description: 'Modern geometric design'
+                            },
+                            {
+                                id: 3,
+                                name: 'Entrance Gate 3',
+                                url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop&crop=center&auto=format&q=80',
+                                description: 'Traditional marigold design'
+                            }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        name: 'Mandap',
+                        images: [
+                            {
+                                id: 4,
+                                name: 'Mandap 1',
+                                url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop&crop=center&auto=format&q=80',
+                                description: 'Traditional four-pillar design'
+                            },
+                            {
+                                id: 5,
+                                name: 'Mandap 2',
+                                url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop&crop=center&auto=format&q=80',
+                                description: 'Modern minimalist design'
+                            },
+                            {
+                                id: 6,
+                                name: 'Mandap 3',
+                                url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop&crop=center&auto=format&q=80',
+                                description: 'Royal palace-style design'
+                            }
+                        ]
+                    },
+                    {
+                        id: 3,
+                        name: 'Food Stage',
+                        images: [
+                            {
+                                id: 7,
+                                name: 'Food Stage 1',
+                                url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop&crop=center&auto=format&q=80',
+                                description: 'Elegant buffet setup'
+                            },
+                            {
+                                id: 8,
+                                name: 'Food Stage 2',
+                                url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop&crop=center&auto=format&q=80',
+                                description: 'Live cooking station'
+                            },
+                            {
+                                id: 9,
+                                name: 'Food Stage 3',
+                                url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop&crop=center&auto=format&q=80',
+                                description: 'Traditional thali presentation'
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        function selectEvent(eventName) {
+            // Update active button
+            document.querySelectorAll('.event-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            selectedEvent = eventName;
+            selectedImages = {};
+            
+            // Show stages section
+            document.getElementById('stages-section').classList.add('active');
+            
+            // Load stages for selected event
+            loadStages(eventName);
+        }
+
+        function loadStages(eventName) {
+            const stagesGrid = document.getElementById('stages-grid');
+            const event = eventData[eventName];
+            
+            if (!event) {
+                stagesGrid.innerHTML = '<p>No stages available for this event.</p>';
+                return;
+            }
+
+            stagesGrid.innerHTML = event.stages.map(stage => `
+                <div class="stage-card">
+                    <h3>${stage.name}</h3>
+                    <div class="images-grid">
+                        ${stage.images.map(image => `
+                            <div class="image-option" onclick="selectImage(${stage.id}, '${stage.name}', ${image.id}, '${image.name}', '${image.url}', '${image.description}')">
+                                <img src="${image.url}" alt="${image.name}">
+                                <p>${image.name}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectImage(stageId, stageName, imageId, imageName, imageUrl, description) {
+            // Remove previous selection for this stage
+            document.querySelectorAll(`[onclick*="selectImage(${stageId}"]`).forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add selection to clicked image
+            event.target.closest('.image-option').classList.add('selected');
+            
+            // Store selection
+            selectedImages[stageId] = {
+                stageId,
+                stageName,
+                imageId,
+                imageName,
+                imageUrl,
+                description
+            };
+            
+            // Update PDF button state
+            updatePDFButton();
+            updateSelectedSummary();
+        }
+
+        function updatePDFButton() {
+            const pdfBtn = document.getElementById('generate-pdf-btn');
+            const hasSelections = Object.keys(selectedImages).length > 0;
+            pdfBtn.disabled = !hasSelections;
+        }
+
+        function updateSelectedSummary() {
+            const summary = document.getElementById('selected-summary');
+            const items = document.getElementById('selected-items');
+            
+            if (Object.keys(selectedImages).length === 0) {
+                summary.style.display = 'none';
+                return;
+            }
+            
+            summary.style.display = 'block';
+            items.innerHTML = Object.values(selectedImages).map(img => `
+                <div class="selected-item">
+                    <span><strong>${img.stageName}:</strong> ${img.imageName}</span>
+                </div>
+            `).join('');
+        }
+
+        async function generatePDF() {
+            if (!selectedEvent || Object.keys(selectedImages).length === 0) {
+                alert('Please select an event and at least one decoration option.');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const pdfBtn = document.getElementById('generate-pdf-btn');
+            
+            loading.style.display = 'block';
+            pdfBtn.disabled = true;
+
+            try {
+                const requestData = {
+                    eventId: eventData[selectedEvent].id,
+                    eventName: selectedEvent,
+                    selectedImages: Object.values(selectedImages)
+                };
+
+                const response = await fetch(`${API_BASE}/pdf/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `wedding_customization_${selectedEvent.toLowerCase()}_${new Date().getTime()}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    throw new Error('PDF generation failed');
+                }
+            } catch (error) {
+                alert('Error generating PDF: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                pdfBtn.disabled = false;
+            }
+        }
+
+        // Initialize with Wedding selected
+        window.onload = function() {
+            selectEvent('Wedding');
+        };
+    </script>
+</body>
+</html>
